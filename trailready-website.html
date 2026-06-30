@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrailReady — MoveReady Inclusive Survival Course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bark:#3C2E22;
+    --forest:#1F3329;
+    --forest-light:#2C4A3A;
+    --canvas:#F2EBD8;
+    --canvas-deep:#E6DAB8;
+    --signal:#D9622B;
+    --signal-dark:#B14E20;
+    --trail-blue:#3D6E73;
+    --ink:#23241F;
+    --line:#C9BC97;
+    --white:#FFFCF4;
+    --focus:#1F5E9C;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--canvas);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+    line-height:1.55;
+  }
+  h1,h2,h3,.display{
+    font-family:'Oswald',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    color:var(--forest);
+    margin:0;
+  }
+  .eyebrow{
+    font-family:'Oswald',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.18em;
+    font-size:0.72rem;
+    color:var(--signal-dark);
+    font-weight:600;
+  }
+  p{margin:0 0 0.8em 0;}
+  a{color:var(--trail-blue);}
+  button{font-family:inherit;}
+
+  /* visible focus state everywhere, for keyboard accessibility */
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{
+    outline:3px solid var(--focus);
+    outline-offset:2px;
+  }
+
+  /* === Topographic backdrop === */
+  .topo{
+    position:fixed; inset:0; z-index:-1; opacity:0.35; pointer-events:none;
+  }
+
+  /* === Header / Nav === */
+  header.site{
+    background:var(--forest);
+    color:var(--white);
+    position:sticky; top:0; z-index:50;
+    border-bottom:4px solid var(--signal);
+  }
+  .header-inner{
+    max-width:1180px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{width:42px; height:42px; flex:0 0 auto;}
+  .brand-text .display{color:var(--white); font-size:1.3rem; line-height:1;}
+  .brand-text .sub{color:var(--canvas-deep); font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; font-family:'Oswald',sans-serif;}
+
+  nav.main{display:flex; flex-wrap:wrap; gap:4px;}
+  nav.main button{
+    background:transparent; border:none; color:var(--canvas-deep);
+    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.05em;
+    font-size:0.85rem; padding:10px 14px; cursor:pointer; border-radius:3px;
+    border-bottom:3px solid transparent;
+  }
+  nav.main button:hover{color:var(--white); background:rgba(255,255,255,0.06);}
+  nav.main button[aria-current="page"]{color:var(--white); border-bottom-color:var(--signal);}
+
+  /* === Layout shells === */
+  main{max-width:1180px; margin:0 auto; padding:0 24px 80px;}
+  .page{display:none;}
+  .page.active{display:block;}
+
+  .hero{
+    padding:56px 0 40px; position:relative;
+  }
+  .hero .eyebrow{margin-bottom:10px; display:block;}
+  .hero h1{font-size:clamp(2.1rem, 5vw, 3.4rem); max-width:14ch;}
+  .hero .lede{font-family:'Source Serif 4',serif; font-size:1.15rem; max-width:60ch; color:var(--bark); margin-top:14px;}
+
+  .card-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:18px; margin-top:30px;
+  }
+  .card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-left:5px solid var(--forest);
+    border-radius:6px;
+    padding:22px 22px 20px;
+    position:relative;
+  }
+  .card.signal{border-left-color:var(--signal);}
+  .card.blue{border-left-color:var(--trail-blue);}
+  .card h3{font-size:1.05rem; margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+  .card h3 svg{width:20px; height:20px; flex:0 0 auto;}
+  .card ul{margin:0; padding-left:1.1em;}
+  .card li{margin-bottom:5px;}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--signal); color:var(--white); border:none;
+    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.04em;
+    font-size:0.85rem; padding:12px 20px; border-radius:4px; cursor:pointer;
+    text-decoration:none;
+  }
+  .btn:hover{background:var(--signal-dark);}
+  .btn.outline{
+    background:transparent; color:var(--forest); border:2px solid var(--forest);
+    padding:10px 18px;
+  }
+  .btn.outline:hover{background:var(--forest); color:var(--white);}
+  .btn-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:28px;}
+
+  section.block{margin-top:56px;}
+  section.block h2{font-size:1.6rem; margin-bottom:6px;}
+  section.block .section-sub{color:var(--bark); font-family:'Source Serif 4',serif; font-style:italic; margin-bottom:24px;}
+
+  /* === Trail map / schedule === */
+  .trail-map{position:relative; margin-top:36px; padding:10px 0;}
+  .trail-line{
+    position:absolute; left:24px; top:0; bottom:0; width:4px;
+    background:repeating-linear-gradient(to bottom, var(--signal) 0 10px, transparent 10px 18px);
+  }
+  .waypoint{
+    position:relative; padding:0 0 36px 64px;
+  }
+  .waypoint:last-child{padding-bottom:0;}
+  .waypoint::before{
+    content:attr(data-week);
+    position:absolute; left:0; top:0; width:50px; height:50px;
+    background:var(--forest); color:var(--white); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:0.95rem;
+    border:3px solid var(--canvas); box-shadow:0 0 0 3px var(--signal);
+  }
+  .waypoint h3{font-size:1.1rem; color:var(--forest); margin-bottom:6px;}
+  .waypoint p{margin-bottom:0; color:var(--bark);}
+
+  /* === Tomorrow's plan === */
+  .plan-banner{
+    background:var(--forest); color:var(--white); border-radius:8px;
+    padding:28px 28px 24px; margin-top:30px; position:relative; overflow:hidden;
+  }
+  .plan-banner::after{
+    content:""; position:absolute; right:-40px; top:-40px; width:180px; height:180px;
+    background:var(--forest-light); border-radius:50%; opacity:0.5;
+  }
+  .plan-banner .eyebrow{color:var(--canvas-deep);}
+  .plan-banner h2{color:var(--white); font-size:1.7rem; margin-top:6px; position:relative;}
+  .plan-objective{font-family:'Source Serif 4',serif; font-style:italic; color:var(--canvas-deep); margin-top:10px; max-width:60ch; position:relative;}
+
+  .checklist{list-style:none; margin:0; padding:0;}
+  .checklist li{
+    display:flex; align-items:flex-start; gap:10px; margin-bottom:8px;
+  }
+  .checklist input[type=checkbox]{margin-top:3px; width:18px; height:18px; accent-color:var(--forest);}
+
+  /* === Skills library === */
+  .skills-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin-top:30px;}
+  .skill-tile{
+    background:var(--white); border:1px solid var(--line); border-radius:6px; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .skill-tile .tile-top{
+    background:var(--forest-light); color:var(--white); padding:26px 18px; position:relative;
+  }
+  .skill-tile .tile-top svg{width:30px; height:30px;}
+  .skill-tile .tile-body{padding:16px 18px 18px;}
+  .skill-tile h3{font-size:0.98rem; margin-bottom:8px;}
+  .tag-row{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+  .tag{
+    font-family:'Oswald',sans-serif; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.06em;
+    background:var(--canvas-deep); color:var(--bark); padding:4px 8px; border-radius:3px;
+  }
+
+  /* === Forms === */
+  form.support-form{
+    background:var(--white); border:1px solid var(--line); border-radius:8px; padding:26px; margin-top:24px;
+  }
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:0.78rem; letter-spacing:0.04em; margin-bottom:6px; color:var(--forest);}
+  .field input[type=text], .field input[type=email], .field textarea, .field select{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:4px; font-family:inherit; font-size:1rem; background:var(--canvas);
+  }
+  .field textarea{min-height:90px; resize:vertical;}
+  .field .hint{font-size:0.82rem; color:var(--bark); margin-top:4px;}
+  .radio-row{display:flex; gap:18px; flex-wrap:wrap;}
+  .radio-row label{display:flex; align-items:center; gap:6px; font-family:'Inter'; text-transform:none; font-weight:500; font-size:0.95rem; color:var(--ink);}
+  .privacy-note{
+    background:var(--canvas-deep); border-left:4px solid var(--trail-blue); padding:14px 16px; border-radius:4px; font-size:0.9rem; margin-top:24px;
+  }
+  .form-status{margin-top:14px; font-weight:600;}
+  .form-status.show{color:var(--forest);}
+  .form-status.show.correct{color:#1F6B3A;}
+  .form-status.show.incorrect{color:var(--signal-dark);}
+
+  /* === Safety center === */
+  .safety-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; margin-top:30px;}
+  .safety-card{
+    background:var(--bark); color:var(--canvas); border-radius:6px; padding:20px 22px;
+  }
+  .safety-card.urgent{background:var(--signal-dark);}
+  .safety-card h3{color:var(--white); font-size:1rem; margin-bottom:8px;}
+  .safety-card a{color:var(--canvas-deep);}
+
+  /* === Gear checklist === */
+  .gear-cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:28px;}
+  .gear-col h3{font-size:0.95rem; margin-bottom:10px; padding-bottom:8px; border-bottom:2px solid var(--line);}
+
+  /* === Feedback rating === */
+  .rating-scale{display:flex; gap:8px; margin-top:6px;}
+  .rating-scale button{
+    width:42px; height:42px; border-radius:50%; border:2px solid var(--forest); background:var(--white);
+    color:var(--forest); font-family:'Oswald',sans-serif; font-weight:600; cursor:pointer;
+  }
+  .rating-scale button[aria-pressed="true"]{background:var(--forest); color:var(--white);}
+
+  /* === Certificate === */
+  .progress-track{
+    display:flex; gap:6px; margin-top:18px;
+  }
+  .progress-step{
+    flex:1; height:10px; border-radius:5px; background:var(--canvas-deep);
+  }
+  .progress-step.done{background:var(--forest);}
+  .cert-frame{
+    margin-top:30px; border:3px double var(--forest); border-radius:8px; padding:36px; text-align:center;
+    background:var(--white); position:relative;
+  }
+  .cert-frame .eyebrow{display:block; margin-bottom:8px;}
+  .cert-frame h2{font-size:1.6rem; margin-bottom:10px;}
+  .cert-frame .name{font-family:'Source Serif 4',serif; font-style:italic; font-size:1.3rem; color:var(--bark); margin:14px 0;}
+
+  /* === Memories === */
+  .memory-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:26px; margin-top:34px;
+  }
+  .polaroid{
+    background:var(--white); padding:14px 14px 18px; border-radius:3px;
+    box-shadow:0 6px 16px rgba(60,46,34,0.18);
+    transform:rotate(var(--tilt,-1deg));
+    transition:transform 0.2s ease;
+  }
+  .polaroid:nth-child(2n){--tilt:1.5deg;}
+  .polaroid:nth-child(3n){--tilt:-2deg;}
+  .polaroid:nth-child(4n){--tilt:0.5deg;}
+  .polaroid:hover{transform:rotate(0deg) scale(1.02);}
+  .polaroid .frame{
+    aspect-ratio:4/3; border-radius:2px; display:flex; align-items:center; justify-content:center;
+    color:var(--white);
+  }
+  .polaroid .frame svg{width:46px; height:46px;}
+  .polaroid figcaption{margin-top:12px;}
+  .polaroid .memory-title{font-family:'Source Serif 4',serif; font-style:italic; font-size:0.95rem; color:var(--bark); margin:0;}
+  .polaroid .memory-week{
+    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:0.06em; font-size:0.65rem; color:var(--signal-dark); display:block; margin-bottom:2px;
+  }
+
+  .memory-wall{
+    background:var(--forest); border-radius:10px; padding:30px 28px; margin-top:50px; color:var(--white);
+  }
+  .memory-wall h2{color:var(--white); font-size:1.3rem; margin-bottom:6px;}
+  .memory-wall .lede{color:var(--canvas-deep); margin-bottom:0; font-family:'Source Serif 4',serif;}
+
+  footer{
+    background:var(--forest); color:var(--canvas-deep); text-align:center; padding:26px; font-size:0.85rem; margin-top:60px;
+  }
+
+  @media (max-width:640px){
+    .header-inner{flex-direction:column; align-items:flex-start;}
+    nav.main{width:100%; overflow-x:auto; flex-wrap:nowrap;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<svg class="topo" viewBox="0 0 1200 1200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g fill="none" stroke="#3C2E22" stroke-width="1">
+    <path d="M -50 200 Q 300 100 600 220 T 1250 180"/>
+    <path d="M -50 300 Q 320 220 620 320 T 1250 280"/>
+    <path d="M -50 400 Q 340 340 640 420 T 1250 380"/>
+    <path d="M -50 600 Q 300 500 600 620 T 1250 580"/>
+    <path d="M -50 700 Q 320 620 620 720 T 1250 680"/>
+    <path d="M -50 800 Q 340 740 640 820 T 1250 780"/>
+    <path d="M -50 950 Q 300 880 600 970 T 1250 930"/>
+  </g>
+</svg>
+
+<header class="site">
+  <div class="header-inner">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#2C4A3A" stroke="#D9622B" stroke-width="2"/>
+        <path d="M24 10 L29 24 L24 21 L19 24 Z" fill="#D9622B"/>
+        <circle cx="24" cy="24" r="3" fill="#F2EBD8"/>
+        <path d="M24 6 V10 M24 38 V42 M6 24 H10 M38 24 H42" stroke="#F2EBD8" stroke-width="1.5"/>
+      </svg>
+      <div class="brand-text">
+        <div class="display">TrailReady</div>
+        <div class="sub">MoveReady Inclusive Survival Course</div>
+      </div>
+    </div>
+    <nav class="main" aria-label="Main navigation">
+      <button data-page="home" aria-current="page">Home</button>
+      <button data-page="schedule">Schedule</button>
+      <button data-page="tomorrow">Tomorrow's Plan</button>
+      <button data-page="accessibility">Accessibility</button>
+      <button data-page="safety">Safety</button>
+      <button data-page="gear">Gear Checklist</button>
+      <button data-page="memories">Memories</button>
+      <button data-page="certificate">Certificate</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <section id="home" class="page active">
+    <div class="hero">
+      <span class="eyebrow">Week 3 of 6 &middot; All paces welcome</span>
+      <h1>Every trail has a way through for everyone.</h1>
+      <p class="lede">MoveReady is a six-week outdoor survival course built from the ground up for people of all mobility levels. No running, no kneeling required &mdash; just real emergency-preparedness skills, taught so everyone can reach the summit together.</p>
+      <div class="btn-row">
+        <button class="btn" data-page="tomorrow">View Tomorrow's Plan</button>
+        <button class="btn outline" data-page="accessibility">Request Support</button>
+        <button class="btn outline" data-page="memories">See Memories</button>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V10l7-7 7 7v11M9 21v-6h6v6"/></svg>Next Session</h3>
+        <p style="font-weight:600; margin-bottom:4px;">Week 3: Accessible Campsite Setup &amp; Shelter Basics</p>
+        <p style="margin-bottom:0;">Saturday, July 4 &middot; 8:00 AM &ndash; 11:00 AM<br>KU Outdoor Training Grounds, Field B</p>
+      </div>
+      <div class="card signal">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M17 4a3 3 0 110 6M7 14a3 3 0 110 6"/></svg>What to Bring</h3>
+        <ul>
+          <li>Water bottle</li>
+          <li>Closed shoes</li>
+          <li>Hat</li>
+          <li>Gloves</li>
+          <li>Personal medication, if needed</li>
+          <li>Phone</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Accessibility Notes</h3>
+        <ul>
+          <li>Seated practice stations available</li>
+          <li>Rest area on site</li>
+          <li>Short-distance route option</li>
+          <li>Equipment support on request</li>
+        </ul>
+      </div>
+      <div class="card signal">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>Safety Reminder</h3>
+        <ul>
+          <li>Drink water before arriving</li>
+          <li>Wear sun protection</li>
+          <li>Tell the team about any discomfort, right away</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="block">
+      <span class="eyebrow">Before you arrive</span>
+      <h2>Three things to do tonight</h2>
+      <div class="card-grid" style="margin-top:20px;">
+        <div class="card">
+          <h3>1. Watch the video</h3>
+          <p>A 3-minute captioned preview of tomorrow's shelter-setup skill.</p>
+          <button class="btn outline" data-page="tomorrow">Go to Tomorrow's Plan</button>
+        </div>
+        <div class="card">
+          <h3>2. Review the checklist</h3>
+          <p>Confirm your gear and your route option before the session starts.</p>
+          <button class="btn outline" data-page="gear">View Gear Checklist</button>
+        </div>
+        <div class="card">
+          <h3>3. Tell us what helps</h3>
+          <p>What topic do you want more help with? Let the team know.</p>
+          <button class="btn outline" data-page="accessibility">Update My Needs</button>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- SCHEDULE -->
+  <section id="schedule" class="page">
+    <div class="hero" style="padding-bottom:0;">
+      <span class="eyebrow">The route ahead</span>
+      <h1>Six-Week Course Schedule</h1>
+      <p class="lede">Each week builds on the last, like waypoints along a trail. Every stop is designed to be reachable at any pace.</p>
+    </div>
+
+    <div class="trail-map">
+      <div class="trail-line" aria-hidden="true"></div>
+      <div class="waypoint" data-week="1">
+        <h3>Orientation, Safety Rules &amp; the TrailReady Portal</h3>
+        <p>Meet your team, learn the ground rules, and get comfortable with this website before the course begins.</p>
+      </div>
+      <div class="waypoint" data-week="2">
+        <h3>Emergency Kits, Communicating Needs &amp; Route Planning</h3>
+        <p>Build a personal emergency kit and practice clearly communicating individual needs and limits to a team.</p>
+      </div>
+      <div class="waypoint" data-week="3">
+        <h3>Accessible Campsite Setup &amp; Shelter Basics</h3>
+        <p>Set up tents and tarps using methods suited to different mobility levels, working in pairs and small teams.</p>
+      </div>
+      <div class="waypoint" data-week="4">
+        <h3>Heat Safety, Hydration, Water &amp; Outdoor Cooking</h3>
+        <p>Recognize heat stress early, plan hydration, purify water, and prepare a simple, safe outdoor meal.</p>
+      </div>
+      <div class="waypoint" data-week="5">
+        <h3>Navigation, Signaling &amp; Emergency Communication</h3>
+        <p>Use maps, landmarks, whistles, mirrors, and phones to navigate and call for help as a team.</p>
+      </div>
+      <div class="waypoint" data-week="6">
+        <h3>Final Team Scenario, Reflection &amp; Certificates</h3>
+        <p>Put it all together in a low-risk team scenario, reflect on your progress, and receive your certificate.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOMORROW'S PLAN -->
+  <section id="tomorrow" class="page">
+    <div class="hero" style="padding-bottom:0;">
+      <span class="eyebrow">Prep for the next stop</span>
+      <h1>Tomorrow's Plan</h1>
+    </div>
+
+    <div class="plan-banner">
+      <span class="eyebrow">Week 4</span>
+      <h2>Heat Safety, Hydration, Water &amp; Cooking</h2>
+      <p class="plan-objective">By the end of the session, you'll be able to recognize early signs of heat stress, plan your hydration, purify water in the field, and prepare a simple outdoor meal safely.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M17 4a3 3 0 110 6M7 14a3 3 0 110 6"/></svg>What to Bring</h3>
+        <ul>
+          <li>Water bottle</li>
+          <li>Hat</li>
+          <li>Comfortable clothing</li>
+          <li>Closed shoes</li>
+          <li>Personal medication, if needed</li>
+          <li>Notebook</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>Accessibility Notes</h3>
+        <p style="margin-bottom:0;">Seated cooking stations will be available. You can request extra rest breaks or shaded seating any time &mdash; just ask a team member, or submit a request in advance.</p>
+        <div style="margin-top:14px;"><button class="btn outline" data-page="accessibility">Request Shaded Seating</button></div>
+      </div>
+      <div class="card signal">
+        <h3>Watch &amp; Review</h3>
+        <p>Watch the short captioned video below and review the safety checklist before class.</p>
+        <div style="background:var(--canvas-deep); border-radius:6px; padding:30px; text-align:center; margin-top:10px;">
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="var(--forest)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="var(--forest)"/></svg>
+          <p style="margin:10px 0 0; font-size:0.85rem;">Heat Safety &amp; Hydration &mdash; 3 min, captioned</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="block">
+      <h2 style="font-size:1.2rem;">Quick reminder quiz</h2>
+      <div class="card" style="max-width:560px;">
+        <p style="font-weight:600;">What's the first thing to do if you feel dizzy or overheated?</p>
+        <div class="radio-row" role="radiogroup" aria-label="Quiz answer">
+          <label><input type="radio" name="quiz1" value="wrong"> Keep working until the break</label>
+          <label><input type="radio" name="quiz1" value="correct"> Tell a team member and rest in shade</label>
+          <label><input type="radio" name="quiz1" value="wrong"> Wait and see</label>
+        </div>
+        <div style="margin-top:16px;">
+          <button type="button" class="btn outline" onclick="checkQuiz()">Check Answer</button>
+          <p id="quizResult" class="form-status" role="status"></p>
+        </div>
+      </div>
+    </section>
+
+  </section>
+
+  <section id="accessibility" class="page">
+    <div class="hero" style="padding-bottom:0;">
+      <span class="eyebrow">Built around you</span>
+      <h1>Accessibility Support</h1>
+      <p class="lede">Tell us what you need, privately, any time before or during the course. We'll prepare equipment and support before you arrive.</p>
+    </div>
+
+    <div class="btn-row" style="margin-top:24px;">
+      <button class="btn outline">Request Equipment Support</button>
+      <button class="btn outline">Request Seating or Rest Support</button>
+      <button class="btn outline">Update My Accessibility Needs</button>
+      <button class="btn outline">Contact the Support Team</button>
+    </div>
+
+    <form class="support-form" onsubmit="event.preventDefault(); document.getElementById('accessStatus').classList.add('show');">
+      <h2 style="font-size:1.2rem; margin-bottom:18px;">Accessibility Needs Form</h2>
+
+      <div class="field">
+        <label for="accName">Name</label>
+        <input type="text" id="accName" autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="accContact">Best way to reach you</label>
+        <input type="text" id="accContact" placeholder="Phone or email">
+      </div>
+      <div class="field">
+        <label for="accType">Type of support needed</label>
+        <select id="accType">
+          <option>Mobility equipment</option>
+          <option>Seating or rest breaks</option>
+          <option>Transport or drop-off support</option>
+          <option>Communication support</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="accDetails">Tell us more</label>
+        <textarea id="accDetails" placeholder="Describe what would help you take part fully and safely."></textarea>
+      </div>
+
+      <div class="privacy-note">
+        Whatever you share here is reviewed only by the accessibility support team and used to prepare for your session. It will be handled respectfully and kept private.
+      </div>
+
+      <div style="margin-top:20px;">
+        <button type="submit" class="btn">Send Request</button>
+        <p id="accessStatus" class="form-status">Request received &mdash; the support team will follow up before your next session.</p>
+      </div>
+    </form>
+
+    <div class="card" style="margin-top:30px; max-width:420px;">
+      <h3>Contact the Support Team</h3>
+      <p style="margin-bottom:4px;">Accessibility Coordinator</p>
+      <p style="margin-bottom:0;">accessibility@trailready.ku.ac &middot; On-site at the Support Tent every session</p>
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <section id="safety" class="page">
+    <div class="hero" style="padding-bottom:0;">
+      <span class="eyebrow">Know before you go</span>
+      <h1>Safety Center</h1>
+    </div>
+
+    <div class="safety-grid">
+      <div class="safety-card urgent">
+        <h3>Emergency Contacts</h3>
+        <p style="margin-bottom:4px;">On-site Emergency: 999</p>
+        <p style="margin-bottom:4px;">Course Team Lead: +971 50 000 0000</p>
+        <p style="margin-bottom:0;">First Aid Station: Field B, Tent 2</p>
+      </div>
+      <div class="safety-card">
+        <h3>Heat Safety</h3>
+        <p style="margin-bottom:0;">Take rest breaks before you feel tired. Move to shade at the first sign of dizziness, headache, or nausea.</p>
+      </div>
+      <div class="safety-card">
+        <h3>Hydration</h3>
+        <p style="margin-bottom:0;">Drink water before, during, and after every session &mdash; don't wait until you're thirsty.</p>
+      </div>
+      <div class="safety-card">
+        <h3>Fire &amp; Tool Rules</h3>
+        <p style="margin-bottom:0;">Only use tools and cooking equipment with a trained team member present. Report damaged equipment immediately.</p>
+      </div>
+      <div class="safety-card">
+        <h3>Evacuation Procedure</h3>
+        <p style="margin-bottom:0;">Follow the team lead's whistle signal and move to the marked assembly point at the field entrance.</p>
+      </div>
+      <div class="safety-card urgent">
+        <h3>If You Feel Unwell</h3>
+        <p style="margin-bottom:0;">Tell any team member right away. You will never be penalized for stopping or asking for help.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GEAR -->
+  <section id="gear" class="page">
+    <div class="hero" style="padding-bottom:0;">
+      <span class="eyebrow">Pack smart, not heavy</span>
+      <h1>Gear Checklist</h1>
+      <p class="lede">Everything you need, nothing you don't. Adaptive equipment is available on request &mdash; you don't need to buy it yourself.</p>
+    </div>
+
+    <div class="gear-cols">
+      <div class="gear-col">
+        <h3>Required</h3>
+        <ul class="checklist">
+          <li><input type="checkbox" id="g1"><label for="g1">Reusable water bottle</label></li>
+          <li><input type="checkbox" id="g2"><label for="g2">Closed-toe shoes</label></li>
+          <li><input type="checkbox" id="g3"><label for="g3">Hat with brim</label></li>
+          <li><input type="checkbox" id="g4"><label for="g4">Sun protection (sunscreen or covering clothing)</label></li>
+          <li><input type="checkbox" id="g5"><label for="g5">Personal medication, if applicable</label></li>
+        </ul>
+      </div>
+      <div class="gear-col">
+        <h3>Optional</h3>
+        <ul class="checklist">
+          <li><input type="checkbox" id="g6"><label for="g6">Notebook and pen</label></li>
+          <li><input type="checkbox" id="g7"><label for="g7">Light gloves</label></li>
+          <li><input type="checkbox" id="g8"><label for="g8">Personal first-aid kit</label></li>
+          <li><input type="checkbox" id="g9"><label for="g9">Small backpack</label></li>
+        </ul>
+      </div>
+      <div class="gear-col">
+        <h3>What Not to Buy</h3>
+        <ul class="checklist">
+          <li><input type="checkbox" id="g10"><label for="g10">Specialized survival kits (provided by course)</label></li>
+          <li><input type="checkbox" id="g11"><label for="g11">Heavy hiking boots (closed shoes are enough)</label></li>
+          <li><input type="checkbox" id="g12"><label for="g12">Expensive adaptive gear &mdash; ask us first</label></li>
+        </ul>
+      </div>
+      <div class="gear-col">
+        <h3>Adaptive Equipment</h3>
+        <p style="font-size:0.92rem;">All-terrain wheelchair attachments, seated workstations, grip-assist tools, and shaded rest equipment are available at every session &mdash; just let the support team know in advance.</p>
+        <button class="btn outline" data-page="accessibility">Request Adaptive Equipment</button>
+      </div>
+    </div>
+  </section>
+
+    </form>
+  </section>
+
+  <!-- MEMORIES -->
+  <section id="memories" class="page">
+    <div class="hero" style="padding-bottom:0;">
+      <span class="eyebrow">The journey so far</span>
+      <h1>Memories</h1>
+      <p class="lede">Moments from the trail &mdash; shared by the team, for the team. A record of how far this group has come, together.</p>
+    </div>
+
+    <div class="memory-grid">
+      <figure class="polaroid">
+        <div class="frame" style="background:var(--forest-light);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><img style="width:160px;height:140px;" src="img1.jpg"></svg>
+        </div>
+        <figcaption>
+          <span class="memory-week">Week 1</span>
+          <p class="memory-title">"First time everyone met at the start line, together."</p>
+        </figcaption>
+      </figure>
+
+      <figure class="polaroid">
+        <div class="frame" style="background:var(--trail-blue);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><img style="width:160px;height:140px;" src="img2.jpg"></svg>
+        </div>
+        <figcaption>
+          <span class="memory-week">Week 2</span>
+          <p class="memory-title">"Building our emergency kits, one item at a time."</p>
+        </figcaption>
+      </figure>
+
+      <figure class="polaroid">
+        <div class="frame" style="background:var(--signal-dark);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><img style="width:160px;height:140px;" src="img3.jpg"></svg>
+        </div>
+        <figcaption>
+          <span class="memory-week">Week 3</span>
+          <p class="memory-title">"Our first shelter standing tall &mdash; teamwork at its best."</p>
+        </figcaption>
+      </figure>
+
+      <figure class="polaroid">
+        <div class="frame" style="background:var(--bark);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2 21c0-4 3-6 6-6s6 2 6 6M14 21c0-3 2-5 4-5"/></svg>
+        </div>
+        <figcaption>
+          <span class="memory-week">Week 3</span>
+          <p class="memory-title">"Rest break laughs in the shade tent."</p>
+        </figcaption>
+      </figure>
+
+      <figure class="polaroid">
+        <div class="frame" style="background:var(--forest-light);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+        </div>
+        <figcaption>
+          <span class="memory-week">Week 4</span>
+          <p class="memory-title">"Hydration check &mdash; everyone looked out for each other."</p>
+        </figcaption>
+      </figure>
+
+      <figure class="polaroid">
+        <div class="frame" style="background:var(--trail-blue);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+        </div>
+        <figcaption>
+          <span class="memory-week">Week 5</span>
+          <p class="memory-title">"Practicing our signal calls across the field."</p>
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="memory-wall">
+      <span class="eyebrow" style="color:var(--canvas-deep);">Add to the wall</span>
+      <h2>Share a Memory</h2>
+      <p class="lede">A photo, a story, or a moment from a session you'd like the rest of the group to see.</p>
+
+      <form class="support-form" style="margin-top:20px; background:var(--white);" onsubmit="event.preventDefault(); document.getElementById('memStatus').classList.add('show');">
+        <div class="field">
+          <label for="memWeek">Which week is this from?</label>
+          <select id="memWeek">
+            <option>Week 1</option>
+            <option>Week 2</option>
+            <option>Week 3</option>
+            <option>Week 4</option>
+            <option>Week 5</option>
+            <option>Week 6</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="memCaption">Your memory</label>
+          <textarea id="memCaption" placeholder="Tell us about this moment..."></textarea>
+        </div>
+        <div class="field">
+          <label for="memPhoto">Attach a photo (optional)</label>
+          <input type="text" id="memPhoto" placeholder="Photo upload">
+          <p class="hint">Photos are shared with the course group only, never posted publicly without your permission.</p>
+        </div>
+        <button type="submit" class="btn">Add to the Wall</button>
+        <p id="memStatus" class="form-status">Thank you &mdash; your memory has been added for the team to see.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- CERTIFICATE -->
+  <section id="certificate" class="page">
+    <div class="hero" style="padding-bottom:0;">
+      <span class="eyebrow">Track your progress</span>
+      <h1>Certificates &amp; Completion</h1>
+    </div>
+
+    <p style="margin-top:20px; font-weight:600;">3 of 6 weeks complete</p>
+    <div class="progress-track" aria-hidden="true">
+      <div class="progress-step done"></div>
+      <div class="progress-step done"></div>
+      <div class="progress-step done"></div>
+      <div class="progress-step"></div>
+      <div class="progress-step"></div>
+      <div class="progress-step"></div>
+    </div>
+
+    <div class="card-grid" style="margin-top:30px;">
+      <div class="card">
+        <h3>Attendance Record</h3>
+        <ul>
+          <li>Week 1 &mdash; Attended</li>
+          <li>Week 2 &mdash; Attended</li>
+          <li>Week 3 &mdash; Attended</li>
+          <li>Week 4 &mdash; Upcoming</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Completed Activities</h3>
+        <ul>
+          <li>Emergency kit build</li>
+          <li>Route planning exercise</li>
+          <li>Shelter setup practice</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cert-frame">
+      <span class="eyebrow">Certificate of Completion</span>
+      <h2>MoveReady Inclusive Survival Course</h2>
+      <p class="name">Awarded upon completion of all six weeks</p>
+      <p style="max-width:50ch; margin:0 auto 18px; font-size:0.9rem; color:var(--bark);">Your certificate will unlock automatically after Week 6. You can request an early progress letter at any time.</p>
+      <button class="btn outline">Request Progress Letter</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  TrailReady &middot; MoveReady Inclusive Survival Course &middot; Khalifa University &middot; Built for every pace.
+</footer>
+
+<script>
+  function checkQuiz(){
+    var selected = document.querySelector('input[name="quiz1"]:checked');
+    var result = document.getElementById('quizResult');
+    result.classList.remove('correct','incorrect');
+    if(!selected){
+      result.textContent = 'Choose an answer first.';
+      result.classList.add('show');
+      return;
+    }
+    if(selected.value === 'correct'){
+      result.innerHTML = '&#10003; Correct — tell a team member and rest in the shade right away.';
+      result.classList.add('show','correct');
+    } else {
+      result.innerHTML = '&#10007; Not quite — the right move is to tell a team member and rest in the shade right away.';
+      result.classList.add('show','incorrect');
+    }
+  }
+
+  function setRating(btn){
+    var group = btn.parentElement;
+    Array.prototype.forEach.call(group.children, function(b){ b.setAttribute('aria-pressed','false'); });
+    btn.setAttribute('aria-pressed','true');
+  }
+
+  document.querySelectorAll('[data-page]').forEach(function(el){
+    el.addEventListener('click', function(){
+      var target = el.getAttribute('data-page');
+      document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+      document.getElementById(target).classList.add('active');
+      document.querySelectorAll('nav.main button').forEach(function(b){ b.removeAttribute('aria-current'); });
+      document.querySelectorAll('nav.main button[data-page="'+target+'"]').forEach(function(b){ b.setAttribute('aria-current','page'); });
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+</script>
+
+</body>
+</html>
